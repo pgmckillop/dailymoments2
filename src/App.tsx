@@ -1,23 +1,40 @@
 import {
   IonApp,
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
+  IonIcon,
+  IonLabel,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
 } from "@ionic/react";
-import React from "react";
+import { IonReactRouter } from "@ionic/react-router";
+import React, { useState } from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
+import { AuthContext } from "./auth";
+import AppTabs from "./AppTabs";
+import LoginPage from "./pages/LoginPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const App: React.FC = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
+  console.log(`rendering App with loggedIn =${loggedIn}`);
   return (
     <IonApp>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>My App</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className='ion-padding'>
-        Add some content here for Git Commit…
-      </IonContent>
+      <AuthContext.Provider value={{ loggedIn }}>
+        <IonReactRouter>
+          <Switch>
+            <Route exact path='/login'>
+              <LoginPage onLogin={() => setLoggedIn(true)} />
+            </Route>
+            <Route path='/my'>
+              <AppTabs />
+            </Route>
+            <Redirect exact path='/' to='/my/entries' />
+            <Route>
+              <NotFoundPage />
+            </Route>
+          </Switch>
+        </IonReactRouter>
+      </AuthContext.Provider>
     </IonApp>
   );
 };
