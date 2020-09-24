@@ -1,26 +1,52 @@
 import {
   IonBackButton,
+  IonButton,
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonPage,
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import React from "react";
-import { useParams } from "react-router";
-import { entries } from "../data";
+import { trash as trashIcon } from "ionicons/icons";
+import React, { useState, useEffect } from "react";
+import { useHistory, useRouteMatch } from "react-router";
+import { useAuth } from "../auth";
+import { firestore } from "../firebase";
+import { Entry, toEntry } from "../models";
+import { formatDate } from "../date";
 
 interface RouteParams {
   id: string;
 }
 
 const EntryPage: React.FC = () => {
-  const { id } = useParams<RouteParams>();
-  const entry = entries.find((entry) => entry.id === id);
-  if (!entry) {
-    throw new Error(`No such entry: ${id}`);
-  }
+  const history = useHistory();
+  const { userId } = useAuth();
+  const match = useRouteMatch<RouteParams>();
+  const { id } = match.params;
+  const [entry, setEntry] = useState<Entry>();
+
+  useEffect(() => {
+    const entryRef = firestore
+      .collection("users")
+      .doc(userId)
+      .collection("entries")
+      .doc(id);
+    entryRef.get().then((doc) => setEntry(toEntry(doc)));
+  }, [userId, id]);
+
+  const handleDelete = async () => {
+    const entryRef = firestore
+      .collection("users")
+      .doc(userId)
+      .collection("entries")
+      .doc(id);
+    await entryRef.delete();
+    history.goBack();
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -28,10 +54,19 @@ const EntryPage: React.FC = () => {
           <IonButtons slot='start'>
             <IonBackButton />
           </IonButtons>
-          <IonTitle>{entry.title}</IonTitle>
+          <IonTitle>{formatDate(entry?.date)}</IonTitle>
+          <IonButtons slot='end'>
+            <IonButton onClick={handleDelete}>
+              <IonIcon icon={trashIcon} slot='icon-only' />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className='ion-padding'>{entry.description}</IonContent>
+
+      <IonContent className='ion-padding'>
+        <h2>{entry?.title}</h2>
+        <p>{entry?.description}</p>
+      </IonContent>
     </IonPage>
   );
 };

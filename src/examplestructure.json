@@ -1,0 +1,16 @@
+{
+  "entries": {
+    "1": {
+      "title": "First Entry",
+      "description": "This is the first entry"
+    },
+    "2": {
+      "title": "Second Entry",
+      "description": "This is the second entry"
+    },
+    "3": {
+      "title": "Third Entry",
+      "description": "This is the third entry"
+    }
+  }
+}
