@@ -12,25 +12,25 @@ import {
   IonThumbnail,
   IonTitle,
   IonToolbar,
-} from "@ionic/react";
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../auth";
-import { formatDate } from "../date";
+} from '@ionic/react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../auth';
+import { formatDate } from '../date';
 
-import { firestore } from "../firebase";
-import { Entry, toEntry } from "../models";
-import { add as addIcon } from "ionicons/icons";
+import { firestore } from '../firebase';
+import { Entry, toEntry } from '../models';
+import { add as addIcon } from 'ionicons/icons';
 
 const HomePage: React.FC = () => {
   const { userId } = useAuth();
   const [entries, setEntries] = useState<Entry[]>([]);
   useEffect(() => {
     const entriesRef = firestore
-      .collection("users")
+      .collection('users')
       .doc(userId)
-      .collection("entries");
+      .collection('entries');
     return entriesRef
-      .orderBy("date", "desc")
+      .orderBy('date', 'desc')
       .limit(7)
       .onSnapshot(({ docs }) => setEntries(docs.map(toEntry)));
   }, [userId]);
@@ -39,10 +39,10 @@ const HomePage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Home</IonTitle>
+          <IonTitle>Daily Moments</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className='ion-padding'>
+      <IonContent className="ion-padding">
         <IonList>
           {entries.map((entry) => (
             <IonItem
@@ -50,7 +50,7 @@ const HomePage: React.FC = () => {
               key={entry.id}
               routerLink={`/my/entries/view/${entry.id}`}
             >
-              <IonThumbnail slot='end'>
+              <IonThumbnail slot="end">
                 <IonImg src={entry.pictureUrl} />
               </IonThumbnail>
               <IonLabel>
@@ -60,8 +60,8 @@ const HomePage: React.FC = () => {
             </IonItem>
           ))}
         </IonList>
-        <IonFab vertical='bottom' horizontal='end' slot='fixed'>
-          <IonFabButton routerLink='/my/entries/add'>
+        <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton routerLink="/my/entries/add">
             <IonIcon icon={addIcon} />
           </IonFabButton>
         </IonFab>

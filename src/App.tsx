@@ -1,12 +1,12 @@
-import { IonApp, IonLoading } from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
-import React from "react";
-import { Redirect, Route, Switch } from "react-router-dom";
-import { AuthContext, useAuthInit } from "./auth";
-import AppTabs from "./AppTabs";
-import LoginPage from "./pages/LoginPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import RegisterPage from "./pages/RegisterPage";
+import { IonApp, IonLoading } from '@ionic/react';
+import { IonReactRouter } from '@ionic/react-router';
+import React from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
+import { AuthContext, useAuthInit } from './auth';
+import AppTabs from './AppTabs';
+import LoginPage from './pages/LoginPage';
+import NotFoundPage from './pages/NotFoundPage';
+import RegisterPage from './pages/RegisterPage';
 
 const App: React.FC = () => {
   const { loading, auth } = useAuthInit();
@@ -22,16 +22,16 @@ const App: React.FC = () => {
       <AuthContext.Provider value={auth}>
         <IonReactRouter>
           <Switch>
-            <Route exact path='/login'>
+            <Route exact path="/login">
               <LoginPage />
             </Route>
-            <Route exact path='/register'>
+            <Route exact path="/register">
               <RegisterPage />
             </Route>
-            <Route path='/my'>
+            <Route path="/my">
               <AppTabs />
             </Route>
-            <Redirect exact path='/' to='/my/entries' />
+            <Redirect exact path="/" to="/my/entries" />
             <Route>
               <NotFoundPage />
             </Route>

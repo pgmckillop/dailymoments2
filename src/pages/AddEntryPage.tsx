@@ -13,11 +13,15 @@ import {
   IonTextarea,
   IonTitle,
   IonToolbar,
-} from "@ionic/react";
-import React, { useState, useEffect, useRef } from "react";
-import { useHistory } from "react-router";
-import { useAuth } from "../auth";
-import { firestore, storage } from "../firebase";
+  isPlatform,
+} from '@ionic/react';
+
+import { CameraResultType, CameraSource, Plugins } from '@capacitor/core';
+import React, { useState, useEffect, useRef } from 'react';
+import { useHistory } from 'react-router';
+import { useAuth } from '../auth';
+import { firestore, storage } from '../firebase';
+const { Camera } = Plugins;
 
 async function savePicture(blobUrl, userId) {
   const pictureRef = storage.ref(`/users/${userId}/pictures/${Date.now()}`);
@@ -25,21 +29,21 @@ async function savePicture(blobUrl, userId) {
   const blob = await response.blob();
   const snapshot = await pictureRef.put(blob);
   const url = await snapshot.ref.getDownloadURL();
-  console.log("saved picture:", url);
+  console.log('saved picture:', url);
   return url;
 }
 
 const AddEntryPage: React.FC = () => {
   const { userId } = useAuth();
   const history = useHistory();
-  const [date, setDate] = useState("");
-  const [title, setTitle] = useState("");
-  const [pictureUrl, setPictureUrl] = useState("/assets/placeholder.png");
-  const [description, setDescription] = useState("");
+  const [date, setDate] = useState('');
+  const [title, setTitle] = useState('');
+  const [pictureUrl, setPictureUrl] = useState('/assets/placeholder.png');
+  const [description, setDescription] = useState('');
   const fileInputRef = useRef<HTMLInputElement>();
   useEffect(
     () => () => {
-      if (pictureUrl.startsWith("blob:")) {
+      if (pictureUrl.startsWith('blob:')) {
         URL.revokeObjectURL(pictureUrl);
       }
     },
@@ -54,17 +58,35 @@ const AddEntryPage: React.FC = () => {
     }
   };
 
+  const handlePictureClick = async () => {
+    if (isPlatform('capacitor')) {
+      try {
+        const photo = await Camera.getPhoto({
+          resultType: CameraResultType.Uri,
+          source: CameraSource.Prompt,
+          width: 600,
+        });
+        // console.log('photo: ', photo.webPath);
+        setPictureUrl(pictureUrl);
+      } catch (error) {
+        console.log('Camera error: ', error);
+      }
+    } else {
+      fileInputRef.current.click();
+    }
+  };
+
   const handleSave = async () => {
     const entriesRef = firestore
-      .collection("users")
+      .collection('users')
       .doc(userId)
-      .collection("entries");
+      .collection('entries');
     const entryData = { date, title, pictureUrl, description };
-    if (pictureUrl.startsWith("blob:")) {
+    if (!pictureUrl.startsWith('/assets')) {
       entryData.pictureUrl = await savePicture(pictureUrl, userId);
     }
     const entryRef = await entriesRef.add(entryData);
-    console.log("saved:", entryRef.id);
+    console.log('saved:', entryRef.id);
     history.goBack();
   };
 
@@ -72,15 +94,15 @@ const AddEntryPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot='start'>
+          <IonButtons slot="start">
             <IonBackButton />
           </IonButtons>
           <IonTitle>Add Entry</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className='ion-padding'>
+      <IonContent className="ion-padding">
         <IonItem>
-          <IonLabel position='stacked'>Date</IonLabel>
+          <IonLabel position="stacked">Date</IonLabel>
           <IonDatetime
             value={date}
             onIonChange={(event) => setDate(event.detail.value)}
@@ -88,38 +110,38 @@ const AddEntryPage: React.FC = () => {
         </IonItem>
         <IonList>
           <IonItem>
-            <IonLabel position='stacked'>Title</IonLabel>
+            <IonLabel position="stacked">Title</IonLabel>
             <IonInput
               value={title}
               onIonChange={(event) => setTitle(event.detail.value)}
             />
           </IonItem>
           <IonItem>
-            <IonLabel position='stacked'>Picture</IonLabel>
+            <IonLabel position="stacked">Picture</IonLabel>
             <br />
             <input
-              type='file'
-              accept='image/*'
+              type="file"
+              accept="image/*"
               hidden
               ref={fileInputRef}
               onChange={handleFileChange}
             />
             <img
               src={pictureUrl}
-              alt=''
-              style={{ cursor: "pointer" }}
-              onClick={() => fileInputRef.current.click()}
+              alt=""
+              style={{ cursor: 'pointer' }}
+              onClick={handlePictureClick}
             />
           </IonItem>
           <IonItem>
-            <IonLabel position='stacked'>Description</IonLabel>
+            <IonLabel position="stacked">Description</IonLabel>
             <IonTextarea
               value={description}
               onIonChange={(event) => setDescription(event.detail.value)}
             />
           </IonItem>
         </IonList>
-        <IonButton expand='block' onClick={handleSave}>
+        <IonButton expand="block" onClick={handleSave}>
           Save
         </IonButton>
       </IonContent>
