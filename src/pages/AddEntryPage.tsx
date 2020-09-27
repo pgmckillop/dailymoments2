@@ -67,7 +67,7 @@ const AddEntryPage: React.FC = () => {
           width: 600,
         });
         // console.log('photo: ', photo.webPath);
-        setPictureUrl(pictureUrl);
+        setPictureUrl(photo.webPath);
       } catch (error) {
         console.log('Camera error: ', error);
       }
